@@ -17,7 +17,7 @@ const router = Router();
 router.use("/auth", authRouter);
 router.use("/users/first", firstUserRouter);
 router.use("/users", authMiddleware, userRouter);
-router.use("/cestas", authMiddleware, cestaRouter);
+router.use("/cestas", cestaRouter);
 router.use("/clientes", authMiddleware, clienteRouter);
 router.use("/entradas-produtos", authMiddleware, entradaProdutoRouter);
 router.use("/fornecedores", authMiddleware, fornecedorRouter);

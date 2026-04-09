@@ -1,8 +1,8 @@
-const { Cesta, sequelize } = require("../models");
+const { Cestas, sequelize } = require("../models");
 
 
 async function getAllCestas() {
-    const allCestas = await Cesta.findAll();
+    const allCestas = await Cestas.findAll();
     return allCestas;
 }
 
