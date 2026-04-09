@@ -7,7 +7,7 @@ router
    .route("/")
    .get(cestasController.getAllCestas)
    .post(cestasController.createCesta);
-
+/*
 router
    .route("/ativos")
    .get(cestasController.getAllActiveCestas)
@@ -40,5 +40,5 @@ router
    .route("/:id")
    .get(cestasController.getCestaById)
    .patch(cestasController.updateCesta)
-
+*/
 module.exports = router;
