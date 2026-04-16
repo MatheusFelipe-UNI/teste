@@ -7,7 +7,7 @@ router
    .route("/")
    .get(cestasController.getAllCestas)
    .post(cestasController.createCesta);
-/*
+
 router
    .route("/ativos")
    .get(cestasController.getAllActiveCestas)
@@ -19,7 +19,7 @@ router
 router
    .route("/ativos/filter")
    .get(cestasController.getAllActiveCestasByFilterAndOrderBy)
-
+/*
 router
    .route("/itens")
    .get(cestasController.getAllCestasItens)
@@ -35,10 +35,10 @@ router
 router
    .route("/:id/itens")
    .get(cestasController.getAllCestasItensByCestaId)
-
+*/
 router
    .route("/:id")
    .get(cestasController.getCestaById)
    .patch(cestasController.updateCesta)
-*/
+
 module.exports = router;
