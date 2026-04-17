@@ -1,5 +1,5 @@
 const { Association } = require("sequelize");
-const { Cestas, sequelize, Itens_cesta } = require("../models");
+const { Cestas, sequelize, Itens_cestas } = require("../models");
 
 async function getAllCestas() {
     const allCestas = await Cestas.findAll();
@@ -99,22 +99,6 @@ async function changeCestaStatus(idCesta, newStatus) {
     return updateCesta
 }
 
-async function updateCesta(id, newCesta) {
-    const updateCesta = await Cestas.update(newCesta, {
-        where: { id: id }
-    });
-    return updateCesta;
-}
-
-async function deleteItensByCestaID(idCesta) {
-    await Itens_cesta.destroy({
-        where: { fk_id_cesta: idCesta }
-    });
-}
-
-async function createItensCesta(itensData) {
-    await Itens_cesta.bulkCreate(itensData)
-}
 
 module.exports = {
     getAllCestas,
@@ -124,7 +108,4 @@ module.exports = {
     getAllActiveCestasByFilterAndOrderBy,
     createCesta,
     changeCestaStatus,
-    updateCesta,
-    deleteItensByCestaID,
-    createItensCesta,
 }
