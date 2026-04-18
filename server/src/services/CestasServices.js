@@ -5,6 +5,10 @@ const { getAllCestas,
     getAllActiveCestasByFilterAndOrderBy,
     createCesta,
     changeCestaStatus,
+    //Itens cestas
+    getAllCestasItens,
+    getAllCestasItensByCestaId,
+    getCestaItemById,
 } = require("../repositories/CestasRepository");
 const { Op } = require("sequelize");
 const { Cestas, sequelize, Itens_cestas, Produtos} = require("../models");
@@ -111,6 +115,26 @@ async function changeCestaStatusService(idCesta, newStatus ) {
     return changeStatus
 }
 
+/*
+========================================================
+                     Itens Cestas
+========================================================
+*/
+
+async function getAllCestasItensService(idCesta) {
+    const allCestasItens = await getAllCestasItens (idCesta);
+    return allCestasItens;
+}
+
+async function getAllCestasItensByCestaIdService(idCesta) {
+    const itensByCesta = await getAllCestasItensByCestaId (idCesta);
+    return itensByCesta;
+}
+
+async function getCestaItemByIdService(idItem) {
+    const cestaItem = await getCestaItemById (idItem);
+    return cestaItem;
+}
 
 module.exports = {
     getAllCestasService,
@@ -120,4 +144,8 @@ module.exports = {
     getAllActiveCestasByFilterAndOrderByService,
     createCestaService,
     changeCestaStatusService,
+    //Itens cestas
+    getAllCestasItensService,
+    getAllCestasItensByCestaIdService,
+    getCestaItemByIdService,
 }

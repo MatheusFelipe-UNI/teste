@@ -19,23 +19,23 @@ router
 router
    .route("/ativos/filter")
    .get(cestasController.getAllActiveCestasByFilterAndOrderBy)
-/*
+
 router
    .route("/itens")
    .get(cestasController.getAllCestasItens)
 
 router
-   .route("/itens/:idItem")
+   .route("/itens/:id")
    .get(cestasController.getCestaItemById)
-*/
+
 router
    .route("/:id/status")
    .patch(cestasController.changeCestaStatus)
-/*
+
 router
    .route("/:id/itens")
    .get(cestasController.getAllCestasItensByCestaId)
-*/
+
 router
    .route("/:id")
    .get(cestasController.getCestaById)

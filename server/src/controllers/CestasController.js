@@ -15,6 +15,9 @@ const {
    getCestaByIdService,
    createCestaService,
    changeCestaStatusService,
+   getAllCestasItensService,
+   getAllCestasItensByCestaIdService,
+   getCestaItemByIdService,
    updateCestaService,
 } = require("../services/CestasServices.js");
 

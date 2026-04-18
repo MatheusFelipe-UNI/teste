@@ -1,5 +1,5 @@
 const { Association } = require("sequelize");
-const { Cestas, sequelize, Itens_cestas } = require("../models");
+const { Cestas, sequelize, Itens_cestas, Produtos } = require("../models");
 
 async function getAllCestas() {
     const allCestas = await Cestas.findAll();
@@ -15,6 +15,7 @@ async function getAllActiveCestas() {
             "id",
             "nome_cesta",
             "status",
+            "quantidade",
             [
                 sequelize.fn("DATE_FORMAT", sequelize.col("Cestas.created_at"), "%d-%m-%Y %H:%i:%s"),
                 "created_at",
@@ -99,6 +100,32 @@ async function changeCestaStatus(idCesta, newStatus) {
     return updateCesta
 }
 
+/*
+========================================================
+                     Itens Cestas
+========================================================
+*/
+
+async function getAllCestasItens(idItens) {
+    const allCestasItens = await Cestas.findAll({
+        include: [{
+            association: "itens_cesta"
+        }]
+    });
+    return allCestasItens;
+}
+
+async function getAllCestasItensByCestaId(idCesta) {
+    const allCestas = await Itens_cestas.findAll({
+        where: { fk_id_cesta: idCesta }
+    });
+    return allCestas
+}
+
+async function getCestaItemById(idItem) {
+    const itensCesta = await Itens_cestas.findByPk(idItem);
+    return itensCesta;
+}
 
 module.exports = {
     getAllCestas,
@@ -108,4 +135,8 @@ module.exports = {
     getAllActiveCestasByFilterAndOrderBy,
     createCesta,
     changeCestaStatus,
+    // Itens cesta
+    getAllCestasItens,
+    getAllCestasItensByCestaId,
+    getCestaItemById,
 }
