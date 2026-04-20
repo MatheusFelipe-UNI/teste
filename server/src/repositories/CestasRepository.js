@@ -61,7 +61,11 @@ async function getAllActiveCestasByFilterAndOrderBy(whereClause, orderFilters, a
 }
 
 async function getCestaById(idCesta) {
-    const cestaID = await Cestas.findByPk(idCesta);
+    const cestaID = await Cestas.findByPk(idCesta, {
+        include: [{
+            association: "itens_cesta"
+        }]
+    });
     return cestaID;
 }
 
@@ -100,6 +104,59 @@ async function changeCestaStatus(idCesta, newStatus) {
     return updateCesta
 }
 
+async function getProdutosByID(produtos) {
+    return await Produtos.findAll({
+        where: { id: produtos }
+    });
+}
+
+/*
+==================================================================================
+                    CORRIGIR ESTA FUNÇÃO DE UPDATE, NÃO ESTÁ 100%.
+==================================================================================
+
+async function updateCesta(idCesta, cestaData, newItens, updateEstoque) {
+    const t = await sequelize.transaction();
+
+    try {
+        for (const produto of updateEstoque) {
+            await Produtos.update(
+                { quantidade_estoque: produto.quantidade_estoque },
+                { where: { id: produto.id }, transaction: t }
+            );
+        }
+
+        await Cestas.update(
+            { ...cestaData }, 
+            { where: { id: idCesta }, transaction: t }
+        );
+
+        if (newItens) {
+            await Itens_cestas.destroy({
+                where: { fk_id_cesta: idCesta },
+                transaction: t
+            });
+
+            for (const item of newItens) {
+                await Itens_cestas.create({
+                    fk_id_cesta: idCesta,
+                    fk_id_produto: item.fk_id_produto,
+                    quantidade: item.quantidade
+                }, { transaction: t });
+            }
+        }
+
+        await t.commit();
+        return [1];
+
+    } catch (error) {
+        await t.rollback();
+        throw error;
+    }
+}
+
+
+
 /*
 ========================================================
                      Itens Cestas
@@ -135,6 +192,7 @@ module.exports = {
     getAllActiveCestasByFilterAndOrderBy,
     createCesta,
     changeCestaStatus,
+    getProdutosByID,
     // Itens cesta
     getAllCestasItens,
     getAllCestasItensByCestaId,

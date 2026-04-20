@@ -1,3 +1,7 @@
+const { 
+   getProdutoByIdService 
+} = require("../services/ProdutosServices.js");
+
 //Helpers
 const errorResponse = require("../helper/ErrorResponseHelper.js");
 

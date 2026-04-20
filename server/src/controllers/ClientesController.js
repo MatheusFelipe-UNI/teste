@@ -6,6 +6,14 @@ const NotFoundError = require("../classes/NotFoundError.js");
 const FieldUndefinedError = require("../classes/FieldUndefinedError.js");
 const CannotCreateError = require("../classes/CannotCreateError.js");
 
+const {
+   getAllClientesService,
+   getAllActiveClientesService,
+   getAllInactiveClientesService,
+   getAllActiveClientesByFilterAndOrderByService,
+   getClienteByIdService,
+} = require("../services/ClientesServices.js")
+
 /* 
 ============================================
 NOTAS DO NATAN PARA O MATHEUS
@@ -91,7 +99,7 @@ async function getClienteById(req, res) {
       // Utilizar esse Nome de função para os services
       const cliente = await getClienteByIdService(id);
 
-      if(!cliente) {
+      if (!cliente) {
          throw new NotFoundError("Cliente não encontrado", {
             fields: {
                id,
@@ -112,19 +120,19 @@ async function changeClienteStatus(req, res) {
       const id = Number(req.params.id);
       let { status } = req.body;
 
-      if(!id || !status) {
+      if (!id || !status) {
          throw new FieldUndefinedError("Um ou mais campos não identificados", {
             fields: {
                id,
                status
             }
          })
-      }      
-      
+      }
+
       // Utilizar esse Nome de função para os services
       const [rowAffected] = await changeClienteStatusService(id, status);
 
-      if(rowAffected > 0) {
+      if (rowAffected > 0) {
          return res.status(200).json({
             status: "success",
             message: "STATUS alterado com sucesso"
@@ -147,13 +155,13 @@ async function createCliente(req, res) {
          cpf_cnpj,
       } = req.body;
 
-      if(!nome_cliente || !telefone || !tipo_cliente || !cpf_cnpj) {
+      if (!nome_cliente || !telefone || !tipo_cliente || !cpf_cnpj) {
          throw new FieldUndefinedError("Um ou mais campos não identificados", {
             dados_passados: {
                nome_cliente: nome_cliente || "Não encontrado",
                telefone: telefone || "Não encontrado",
                tipo_cliente: tipo_cliente || "Não encontrado",
-               cpf_cnpj: cpf_cnpj || "Não encontrado" 
+               cpf_cnpj: cpf_cnpj || "Não encontrado"
             }
          })
       }
@@ -165,7 +173,7 @@ async function createCliente(req, res) {
          cpf_cnpj
       })
 
-      if(!createdCliente) {
+      if (!createdCliente) {
          throw new CannotCreateError("Erro ao cadastrar Cliente", {
             data: {
                createdCliente
@@ -195,14 +203,14 @@ async function updateCliente(req, res) {
          cpf_cnpj
       } = req.body;
 
-      if(!id || (!nome_cliente && !telefone && !tipo_cliente && !cpf_cnpj)) {
+      if (!id || (!nome_cliente && !telefone && !tipo_cliente && !cpf_cnpj)) {
          throw new FieldUndefinedError("Um ou mais campos obrigatórios não identificados", {
             dados_passados: {
                id: id || "Não encontrado",
                nome_cliente: nome_cliente || "Não encontrado",
                telefone: telefone || "Não encontrado",
                tipo_cliente: tipo_cliente || "Não encontrado",
-               cpf_cnpj: cpf_cnpj || "Não encontrado"  
+               cpf_cnpj: cpf_cnpj || "Não encontrado"
             }
          })
       }
@@ -214,7 +222,7 @@ async function updateCliente(req, res) {
          cpf_cnpj
       })
 
-      if(rowAffected > 0) {
+      if (rowAffected > 0) {
          return res.status(200).json({
             status: "success",
             message: "Alterações Realizadas com sucesso!"
