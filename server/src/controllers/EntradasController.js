@@ -5,6 +5,10 @@ const errorResponse = require("../helper/ErrorResponseHelper.js");
 const NotFoundError = require("../classes/NotFoundError.js");
 const FieldUndefinedError = require("../classes/FieldUndefinedError.js");
 const CannotCreateError = require("../classes/CannotCreateError.js");
+const {
+   getAllEntradasProdutosService,
+   getAllReceivedEntradasProdutosService,
+} =require ("../services/EntradasServices.js");
 
 /* 
 ============================================

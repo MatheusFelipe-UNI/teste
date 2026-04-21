@@ -12,6 +12,9 @@ const {
    getAllInactiveClientesService,
    getAllActiveClientesByFilterAndOrderByService,
    getClienteByIdService,
+   changeClienteStatusService,
+   createClienteService,
+   updateClienteService,
 } = require("../services/ClientesServices.js")
 
 /* 

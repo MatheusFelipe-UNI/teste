@@ -4,9 +4,15 @@ const {
     getAllInactiveClientes,
     getAllActiveClientesByFilterAndOrderBy,
     getClienteById,
+    changeClienteStatus,
+    createCliente,
+    getClienteByCPForCNPJ,
+    updateCliente,
 } = require("../repositories/ClientesRepository");
-const { Op } = require("sequelize");
+const { Op, where } = require("sequelize");
 const { Clientes, sequelize } = require("../models");
+const NotFoundError = require("../classes/NotFoundError");
+const ExistsDataError = require("../classes/ExistsDataError");
 
 async function getAllClientesService() {
     const allClientes = await getAllClientes();
@@ -23,15 +29,24 @@ async function getAllInactiveClientesService() {
     return allInactiveClientes;
 }
 
-async function getAllActiveClientesByFilterAndOrderByService(filterParams) {
+async function getAllActiveClientesByFilterAndOrderByService(orderBy, filterOptions) {
+    let filters = filterOptions;
+    if (typeof filters === 'string') {
+        try {
+            filters = JSON.parse(filters);
+        } catch (error) {
+            filters = {};
+        }
+    }
+    filters = filters || {};
+
     const {
         nome_cliente,
         telefone,
         cpf_cnpj,
         tipo_cliente,
-        order_by = "created_at",
         order_direction = "DESC"
-    } = filterParams;
+    } = filters;
 
     const whereClause = {
         status: "ATIVO"
@@ -44,17 +59,28 @@ async function getAllActiveClientesByFilterAndOrderByService(filterParams) {
         };
     }
 
-    // Filtro baseado no tipo_cliente, minha sugestão é um select de "PESSOA FISICA" e "PESSOA JURIDICA"
-    if (pf || pj) {
-        whereClause.tipo_cliente = {};
-        if (pf) whereClause.tipo_cliente[Op.eq] = PESSOA_FISICA;
-        if (pj) whereClause.tipo_cliente[Op.eq] = PESSOA_JURIDICA;
-
+    // Procura o documento (cpf ou cnpj) semelhante ao digitado pelo usuário
+    if (cpf_cnpj) {
+        whereClause.cpf_cnpj = {
+            [Op.like]: `%${cpf_cnpj}%`
+        };
     }
 
-    const allowedOrderFields = ['id', 'created_at', 'updated_at'];
-    const orderField = allowedOrderFields.includes(order_by) ? order_by : 'id';
-    const orderDir = order_direction.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+    // Filtro baseado no tipo_cliente, minha sugestão é um select de "PESSOA FISICA" e "PESSOA JURIDICA"
+    if (tipo_cliente) {
+        whereClause.tipo_cliente = tipo_cliente;
+    }
+
+    // Procura um telefone semelhante ao digitado pelo usuário
+    if (telefone) {
+        whereClause.telefone = {
+            [Op.like]: `%${telefone}%`
+        };
+    }
+
+    const allowedOrderFields = ['id', 'created_at', 'updated_at', 'tipo_cliente', 'nome_cliente'];
+    const orderField = allowedOrderFields.includes(orderBy) ? orderBy : 'id';
+    const orderDir = (order_direction).toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
     const orderFilters = [[orderField, orderDir]];
 
     const attributesFilters = [
@@ -77,9 +103,58 @@ async function getAllActiveClientesByFilterAndOrderByService(filterParams) {
     return filteredClientes;
 }
 
-async function getClienteByIdService(idcliente) {
-    const clienteID = await getClienteById(idcliente);
+async function getClienteByIdService(idCliente) {
+    const clienteID = await getClienteById(idCliente);
     return clienteID
+}
+
+async function changeClienteStatusService(idCliente, newStatus) {
+    const cliente = await getClienteByIdService(idCliente);
+    const formattedNewStatus = newStatus.toUpperCase();
+
+    if (!cliente) {
+        throw new NotFoundError("Cliente não localizado!");
+    }
+
+    if (formattedNewStatus !== "ATIVO" && formattedNewStatus !== "INATIVO") {
+        throw new ExistsDataError("Utilize ATIVO ou INATIVO")
+    }
+
+    const statusAtual = cliente.status;
+    if (formattedNewStatus == statusAtual) {
+        throw new ExistsDataError(`Este cliente já se encontra com o status: ${formattedNewStatus}`);
+    }
+
+    const updatedClienteStatus = await changeClienteStatus(idCliente, formattedNewStatus);
+    return updatedClienteStatus
+}
+
+async function createClienteService(clienteData) {
+    const existingCliente = await getClienteByCPForCNPJ(clienteData.cpf_cnpj);
+
+    if (existingCliente) {
+        throw new ExistsDataError("Já existe um cliente com este CPF/CNPJ")
+    }
+
+    const createdCliente = await createCliente(clienteData);
+    return createCliente;
+}
+
+async function updateClienteService(id, clienteData) {
+    const { nome_cliente, telefone, tipo_cliente, cpf_cnpj } = clienteData
+    const cliente = await getClienteByIdService(id);
+
+    if (!cliente) {
+        throw new NotFoundError("Cliente não localizado!")
+    }
+
+    const updateFields = {};
+    if (nome_cliente !== undefined) updateFields.nome_cliente = nome_cliente
+    if (telefone !== undefined) updateFields.telefone = telefone
+    if (cpf_cnpj !== undefined) updateFields.cpf_cnpj = cpf_cnpj
+    if (tipo_cliente !== undefined) updateFields.tipo_cliente = tipo_cliente
+
+    return await updateCliente(id, updateFields);
 }
 
 module.exports = {
@@ -88,4 +163,7 @@ module.exports = {
     getAllInactiveClientesService,
     getAllActiveClientesByFilterAndOrderByService,
     getClienteByIdService,
+    changeClienteStatusService,
+    createClienteService,
+    updateClienteService,
 }
