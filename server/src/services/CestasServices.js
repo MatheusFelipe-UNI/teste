@@ -109,12 +109,18 @@ async function changeCestaStatusService(idCesta, newStatus) {
 
     const statusAtual = cesta.status;
     if (formattedNewStatus == statusAtual) {
-        throw new ExistsDataError(`Esta aquisição já está na situação de: ${formattedNewStatus}`);
+        throw new ExistsDataError(`Esta cesta já está: ${formattedNewStatus}`);
     }
 
     const changeStatus = await changeCestaStatus(idCesta, formattedNewStatus);
     return changeStatus
 }
+
+/*
+
+==================================================================================
+                    CORRIGIR ESTA FUNÇÃO DE UPDATE, NÃO ESTÁ 100%.
+==================================================================================
 
 async function updateCestaService(idCesta, updateData) {
     const oldCesta = await getCestaByIdService(idCesta);
@@ -200,7 +206,6 @@ module.exports = {
     getAllActiveCestasByFilterAndOrderByService,
     createCestaService,
     changeCestaStatusService,
-    updateCestaService,
     //Itens cestas
     getAllCestasItensService,
     getAllCestasItensByCestaIdService,
