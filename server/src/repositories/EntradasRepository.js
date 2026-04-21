@@ -1,7 +1,21 @@
-const { EntradasProdutos, sequelize} = require("../models");
+const { EntradasProdutos, sequelize } = require("../models");
 
 async function getAllEntradasProdutos() {
-    const allEntradasProdutos = await EntradasProdutos.findAll();
+    const allEntradasProdutos = await EntradasProdutos.findAll({
+        attributes: [
+            "id",
+            "status",
+            [sequelize.fn("DATE_FORMAT", sequelize.col("data_entrada"), "%d-%m-%Y %H:%i:%s"), "data_entrada"],
+            [sequelize.col("user_entrada.usuario"), "usuario"]
+        ],
+        include: [
+            {
+                association: "user_entrada",
+                attributes: []
+            }
+        ],
+        raw: true
+    });
     return allEntradasProdutos;
 }
 
@@ -12,63 +26,84 @@ async function getAllReceivedEntradasProdutos() {
         },
         attributes: [
             "id",
-            "nome_cesta",
             "status",
-            "quantidade",
-            [
-                sequelize.fn("DATE_FORMAT", sequelize.col("EntradasProdutos.created_at"), "%d-%m-%Y %H:%i:%s"),
-                "created_at",
-            ],
-            [
-                sequelize.fn("DATE_FORMAT", sequelize.col("EntradasProdutos.updated_at"), "%d-%m-%Y %H:%i:%s"),
-                "updated_at",
-            ],
-        ]
-    })
+            [sequelize.fn("DATE_FORMAT", sequelize.col("data_entrada"), "%d-%m-%Y %H:%i:%s"), "data_entrada"],
+            [sequelize.col("user_entrada.usuario"), "usuario"]
+        ],
+        include: [
+            {
+                association: "user_entrada",
+                attributes: []
+            }
+        ],
+        raw: true
+    });
     return allReceivedEntradasProdutos;
 }
 
-async function getAllInactiveEntradasProdutos() {
-    const allInactiveEntradasProdutos = await EntradasProdutos.findAll({
+async function getAllCanceledEntradasProdutos() {
+    const allCanceledEntradasProdutos = await EntradasProdutos.findAll({
         where: {
-            status: "INATIVO"
+            status: "CANCELADA"
         },
         attributes: [
             "id",
-            "nome_cesta",
             "status",
-            [
-                sequelize.fn("DATE_FORMAT", sequelize.col("EntradasProdutos.created_at"), "%d-%m-%Y %H:%i:%s"),
-                "created_at",
-            ],
-            [
-                sequelize.fn("DATE_FORMAT", sequelize.col("EntradasProdutos.updated_at"), "%d-%m-%Y %H:%i:%s"),
-                "updated_at",
-            ],
-        ]
-    })
-    return allInactiveEntradasProdutos;
+            [sequelize.fn("DATE_FORMAT", sequelize.col("data_entrada"), "%d-%m-%Y %H:%i:%s"), "data_entrada"],
+            [sequelize.col("user_entrada.usuario"), "usuario"]
+        ],
+        include: [
+            {
+                association: "user_entrada",
+                attributes: []
+            }
+        ],
+        raw: true
+    });
+    return allCanceledEntradasProdutos;
 }
 
-async function getAllActiveEntradasProdutosByFilterAndOrderBy(whereClause, orderFilters, attributesFilters) {
-    const cesta = await EntradasProdutos.findAll({
+async function getAllReceivedEntradasProdutosByFilterAndOrderBy(whereClause, orderFilters, attributesFilters) {
+    const allReceivedProducts = await EntradasProdutos.findAll({
+        where: {
+            status: "RECEBIDA"
+        },
         where: whereClause,
         attributes: attributesFilters,
         order: orderFilters
     });
-    return cesta;
+    return allReceivedProducts;
 }
 
-async function getCestaById(idCesta) {
-    const cestaID = await EntradasProdutos.findByPk(idCesta, {
-        include: [{
-            association: "itens_cesta"
-        }]
+async function getEntradaProdutoById(idEntradaProduto) {
+    const EntradaProdutoID = await EntradasProdutos.findByPk(idEntradaProduto, {
+        attributes: [
+            "id",
+            "status",
+            [sequelize.fn("DATE_FORMAT", sequelize.col("data_entrada"), "%d-%m-%Y %H:%i:%s"), "data_entrada"],
+            [sequelize.col("user_entrada.usuario"), "usuario"]
+        ],
+        include: [
+            {
+                association: "user_entrada",
+                attributes: []
+            },
+            {
+                association: "itens_entrada",
+                attributes: ["id", "quantidade_adquirida"],
+                include: [{
+                    association: "produtos_entrada",
+                    attributes: ["nome_produto"]
+                }]
+            },
+        ]
     });
-    return cestaID;
+    return EntradaProdutoID;
 }
 
 module.exports = {
     getAllEntradasProdutos,
     getAllReceivedEntradasProdutos,
+    getAllCanceledEntradasProdutos,
+    getEntradaProdutoById,
 }

@@ -19,7 +19,7 @@ router.use("/users/first", firstUserRouter);
 router.use("/users", authMiddleware, userRouter);
 router.use("/cestas", authMiddleware, cestaRouter);
 router.use("/clientes", authMiddleware, clienteRouter);
-router.use("/entradas-produtos", entradaProdutoRouter);
+router.use("/entradas-produtos", authMiddleware, entradaProdutoRouter);
 router.use("/fornecedores", authMiddleware, fornecedorRouter);
 router.use("/produtos", authMiddleware, produtoRouter);
 router.use("/vendas-cestas", authMiddleware, vendaCestaRouter);

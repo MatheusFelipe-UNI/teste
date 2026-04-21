@@ -8,6 +8,8 @@ const CannotCreateError = require("../classes/CannotCreateError.js");
 const {
    getAllEntradasProdutosService,
    getAllReceivedEntradasProdutosService,
+   getAllCanceledEntradasProdutosService,
+   getEntradaProdutoByIdService,
 } =require ("../services/EntradasServices.js");
 
 /* 

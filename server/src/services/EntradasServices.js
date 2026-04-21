@@ -1,6 +1,8 @@
 const { 
     getAllEntradasProdutos,
     getAllReceivedEntradasProdutos,
+    getAllCanceledEntradasProdutos,
+    getEntradaProdutoById,
 } = require ("../repositories/EntradasRepository");
 const { Op } = require("sequelize");
 const { EntradasProdutos, sequelize} = require("../models");
@@ -17,37 +19,30 @@ async function getAllReceivedEntradasProdutosService() {
     return allReceivedEntradasProdutos;
 }
 
-async function getAllInactiveEntradasProdutosService() {
-    const allInactiveEntradasProdutos = await getAllInactiveEntradasProdutos();
-    return allInactiveEntradasProdutos;
+async function getAllCanceledEntradasProdutosService() {
+    const allCanceledEntradasProdutos = await getAllCanceledEntradasProdutos();
+    return allCanceledEntradasProdutos;
 }
 
-async function getAllActiveEntradasProdutosByFilterAndOrderByService(filterParams) {
+async function getAllReceivedEntradasProdutosByFilterAndOrderByService(filterParams) {
     const {
-        nome_cesta,
-        preco_min,
-        preco_max,
-        order_by = "created_at",
+        id, 
+        fk_id_user, 
+        status, 
+        data_entrada,
+        order_by = "data_entrada",
         order_direction = "DESC"
     } = filterParams;
 
     const whereClause = {
-        status: "ATIVO"
+        status: "RECEBIDA"
     };
 
-    // Filtro com base no nome da cesta
-    if (nome_cesta) {
-        whereClause.nome_cesta = {
-            [Op.like]: `%${nome_cesta}%`
-        };
-    }
-
-    // Filtro baseado nos valores da cesta, o usuário deve escolher o valor minimo e o valor máximo
-    if (preco_min || preco_max) {
-        whereClause.preco = {};
-        if (preco_min) whereClause.preco[Op.gte] = preco_min;
-        if (preco_max) whereClause.preco[Op.lte] = preco_max;
-
+    // Filtro baseado na data da entrada, o usuário deve escolher o periodo que deseja filtrar
+    if (data_min || data_max) {
+        whereClause.data_entrada = {};
+        if (data_min) whereClause.data_entrada[Op.gte] = data_min;
+        if (data_max) whereClause.data_entrada[Op.lte] = data_max;
     }
 
     const allowedOrderFields = ['id', 'nome_cesta', 'preco', 'quantidade', 'created_at', 'updated_at'];
@@ -56,31 +51,26 @@ async function getAllActiveEntradasProdutosByFilterAndOrderByService(filterParam
     const orderFilters = [[orderField, orderDir]];
 
     const attributesFilters = [
-        "id",
-        "nome_cesta",
-        "preco",
-        "quantidade",
-        "status",
-        [
-            sequelize.fn("DATE_FORMAT", sequelize.col("EntradasProdutos.created_at"), "%d-%m-%Y %H:%i:%s"),
-            "created_at",
-        ],
-        [
-            sequelize.fn("DATE_FORMAT", sequelize.col("EntradasProdutos.updated_at"), "%d-%m-%Y %H:%i:%s"),
-            "updated_at",
-        ],
+        id, 
+        fk_id_user, 
+        status, 
+        data_entrada,
+        [sequelize.fn("DATE_FORMAT", sequelize.col("data_entrada"), "%d-%m-%Y %H:%i:%s"), "data_entrada"],
+        [sequelize.col("user_entrada.usuario"), "usuario"]
     ];
 
     const filteredEntradasProdutos = await getAllActiveEntradasProdutosByFilterAndOrderBy(whereClause, orderFilters, attributesFilters);
     return filteredEntradasProdutos;
 }
 
-async function getCestaByIdService(idCesta) {
-    const cestaID = await getCestaById(idCesta);
-    return cestaID
+async function getEntradaProdutoByIdService(idEntradaProduto) {
+    const EntradaProdutoID = await getEntradaProdutoById(idEntradaProduto);
+    return EntradaProdutoID
 }
 
 module.exports = {
     getAllEntradasProdutosService,
     getAllReceivedEntradasProdutosService,
+    getAllCanceledEntradasProdutosService,
+    getEntradaProdutoByIdService,
 }
