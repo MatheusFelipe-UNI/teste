@@ -9,8 +9,11 @@ const {
    getAllEntradasProdutosService,
    getAllReceivedEntradasProdutosService,
    getAllCanceledEntradasProdutosService,
+   getAllReceivedEntradasProdutosByFilterAndOrderByService,
+   getAllCanceledEntradasProdutosByFilterAndOrderByService,
    getEntradaProdutoByIdService,
-} =require ("../services/EntradasServices.js");
+   changeEntradaProdutoStatusService,
+} = require("../services/EntradasServices.js");
 
 /* 
 ============================================
@@ -86,7 +89,7 @@ async function getAllCanceledEntradasProdutosByFilterAndOrderBy(req, res) {
       }
 
       const filteredEntradasProdutos = await getAllCanceledEntradasProdutosByFilterAndOrderByService(orderBy, filterOptions);
-      
+
       return res.status(200).json(filteredEntradasProdutos);
 
    } catch (error) {
@@ -98,7 +101,7 @@ async function getEntradaProdutoById(req, res) {
    try {
       const id = Number(req.params.id);
 
-      if(!id) {
+      if (!id) {
          throw new FieldUndefinedError("Campo ID não identificado", {
             fields: {
                id,
@@ -108,7 +111,7 @@ async function getEntradaProdutoById(req, res) {
 
       const entradaProduto = await getEntradaProdutoByIdService(id);
 
-      if(!entradaProduto) {
+      if (!entradaProduto) {
          throw new NotFoundError("Entrada de produto não encontrada", {
             fields: {
                id,
@@ -128,18 +131,18 @@ async function changeEntradaProdutoStatus(req, res) {
       const id = Number(req.params.id);
       const { status } = req.body;
 
-      if(!id || !status) {
+      if (!id || !status) {
          throw new FieldUndefinedError("Um ou mais campos não identificados", {
             fields: {
                id,
                status
             }
          })
-      } 
+      }
 
       const [rowAffected] = await changeEntradaProdutoStatusService(id, status);
 
-      if(rowAffected > 0) {
+      if (rowAffected > 0) {
          return res.status(200).json({
             status: "success",
             message: "STATUS alterado com sucesso"
@@ -161,7 +164,7 @@ async function createEntradaProduto(req, res) {
          itens_entrada: undefined
       };
 
-      if(!id_user || !itens_entrada) {
+      if (!id_user || !itens_entrada) {
          throw new FieldUndefinedError("Um ou mais campos não identificados", {
             fields: {
                id_user: id_user || "Não encontrado",
@@ -175,7 +178,7 @@ async function createEntradaProduto(req, res) {
          itens_entrada
       });
 
-      if(!createdEntradaProduto) {
+      if (!createdEntradaProduto) {
          throw new CannotCreateError("Não foi possível criar a entrada de produto", {
             data: {
                createdEntradaProduto
@@ -214,7 +217,7 @@ async function getAllEntradasProdutosItensByIdEntrada(req, res) {
    try {
       const idEntrada = Number(req.params.idEntrada);
 
-      if(!idEntrada) {
+      if (!idEntrada) {
          throw new FieldUndefinedError("Campo idEntrada não identificado", {
             fields: {
                idEntrada,
