@@ -18,7 +18,7 @@ module.exports = (sequelize, DataTypes) => {
          },
          status: {
             type: DataTypes.ENUM("RECEBIDA", "CANCELADA"),
-            allowNull: false,
+            allowNull: true,
          },
          data_entrada: {
             type: DataTypes.DATE,

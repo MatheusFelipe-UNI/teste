@@ -4,7 +4,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 function generateToken(id) {
-   return jwt.sign({ id: id }, process.env.SECRET_TOKEN, { expiresIn: 86400 });
+   return jwt.sign({ id: id }, process.env.SECRET_TOKEN, { expiresIn: 604800 });
 }
 
 async function loginService(userName, password) {

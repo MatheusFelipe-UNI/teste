@@ -6,12 +6,17 @@ const {
     getAllCanceledEntradasProdutosByFilterAndOrderBy,
     getEntradaProdutoById,
     changeEntradaProdutoStatus,
+    createEntradaProduto,
+    getAllEntradasProdutosItens,
+    getAllEntradasProdutosItensByIdEntrada,
+    getEntradaProdutoItemById,
 } = require ("../repositories/EntradasRepository");
 const { Op } = require("sequelize");
 const { EntradasProdutos, sequelize} = require("../models");
 const NotFoundError = require("../classes/NotFoundError");
 const ExistsDataError = require("../classes/ExistsDataError");
-const { getClienteByIdService } = require("./ClientesServices");
+
+
 
 async function getAllEntradasProdutosService() {
     const allEntradasProdutos = await getAllEntradasProdutos();
@@ -87,6 +92,32 @@ async function changeEntradaProdutoStatusService(idEntrada, newStatus){
     return updateEntradaStatus
 }
 
+async function createEntradaProdutoService(entradaData) {
+    const newEntrada = await createEntradaProduto(entradaData);
+    return newEntrada;
+}
+
+/*
+========================================================
+                   Itens Entradas
+========================================================
+*/
+
+async function getAllEntradasProdutosItensService() {
+    const allEntradasProdutoItens = await getAllEntradasProdutosItens();
+    return allEntradasProdutoItens;
+}
+
+async function getAllEntradasProdutosItensByIdEntradaService(idEntrada) {
+    const entradasProdutosItens = await getAllEntradasProdutosItensByIdEntrada(idEntrada);
+    return entradasProdutosItens;
+}
+
+async function getEntradaProdutoItemByIdService(idItem) {
+    const entradasProdutosItensID = await getEntradaProdutoItemById(idItem);
+    return entradasProdutosItensID;
+}
+
 module.exports = {
     getAllEntradasProdutosService,
     getAllReceivedEntradasProdutosService,
@@ -95,4 +126,8 @@ module.exports = {
     getAllCanceledEntradasProdutosByFilterAndOrderByService,
     getEntradaProdutoByIdService,
     changeEntradaProdutoStatusService,
+    createEntradaProdutoService,
+    getAllEntradasProdutosItensService,
+    getAllEntradasProdutosItensByIdEntradaService,
+    getEntradaProdutoItemByIdService,
 }

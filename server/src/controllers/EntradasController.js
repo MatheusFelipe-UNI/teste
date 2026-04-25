@@ -13,6 +13,10 @@ const {
    getAllCanceledEntradasProdutosByFilterAndOrderByService,
    getEntradaProdutoByIdService,
    changeEntradaProdutoStatusService,
+   createEntradaProdutoService,
+   getAllEntradasProdutosItensService,
+   getAllEntradasProdutosItensByIdEntradaService,
+   getEntradaProdutoItemByIdService,
 } = require("../services/EntradasServices.js");
 
 /* 
@@ -156,8 +160,8 @@ async function changeEntradaProdutoStatus(req, res) {
 
 async function createEntradaProduto(req, res) {
    try {
+      const id_user = req.userInfo.id;
       const {
-         id_user,
          itens_entrada
       } = req.body || {
          id_user: undefined,
@@ -174,8 +178,8 @@ async function createEntradaProduto(req, res) {
       }
 
       const createdEntradaProduto = await createEntradaProdutoService({
-         id_user,
-         itens_entrada
+         fk_id_user: id_user,
+         itens_entrada: itens_entrada,
       });
 
       if (!createdEntradaProduto) {
@@ -215,7 +219,7 @@ async function getAllEntradasProdutosItens(req, res) {
 
 async function getAllEntradasProdutosItensByIdEntrada(req, res) {
    try {
-      const idEntrada = Number(req.params.idEntrada);
+      const idEntrada = Number(req.params.id);
 
       if (!idEntrada) {
          throw new FieldUndefinedError("Campo idEntrada não identificado", {
@@ -235,7 +239,7 @@ async function getAllEntradasProdutosItensByIdEntrada(req, res) {
 
 async function getEntradaProdutoItemById(req, res) {
    try {
-      const id = Number(req.params.id);
+      const id = Number(req.params.idItem);
 
       if (!id) {
          throw new FieldUndefinedError("Campo ID não identificado", {
@@ -255,6 +259,7 @@ async function getEntradaProdutoItemById(req, res) {
          });
       }
 
+      return res.status(200).json(entradaProdutoItem);
    } catch (error) {
       errorResponse(error, res);
    }

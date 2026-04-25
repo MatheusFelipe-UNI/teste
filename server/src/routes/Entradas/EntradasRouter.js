@@ -33,6 +33,10 @@ router
    .get(entradasController.getEntradaProdutoItemById)
 
 router
+   .route("/:id/itens")
+   .get(entradasController.getAllEntradasProdutosItensByIdEntrada) 
+
+router
    .route("/:id/status")
    .patch(entradasController.changeEntradaProdutoStatus)
 

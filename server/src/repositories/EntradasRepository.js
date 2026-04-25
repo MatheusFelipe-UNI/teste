@@ -1,4 +1,4 @@
-const { EntradasProdutos, sequelize } = require("../models");
+const { EntradasProdutos, sequelize, Entradas_produtos_itens } = require("../models");
 const { Op, where } = require("sequelize");
 
 async function getAllEntradasProdutos() {
@@ -212,9 +212,49 @@ async function changeEntradaProdutoStatus(idEntrada, newStatus) {
 }
 
 async function createEntradaProduto(entradaData) {
-    const createdEntrada = await EntradasProdutos.create(entradaData);
-    return createdEntrada;
+    const t = await sequelize.transaction();
+
+    try {
+        const newEntradaProduto = await EntradasProdutos.create({
+            fk_id_user: entradaData.fk_id_user,
+            itens_entrada: entradaData.itens_entrada
+        }, {
+            include: [{
+                association: "itens_entrada"
+            }],
+            transaction: t
+        });
+
+        await t.commit();
+        return newEntradaProduto;
+
+    } catch (error) {
+        console.log(error);
+        await t.rollback();
+    }
 }
+
+/*
+========================================================
+                   Itens Entradas
+========================================================
+*/
+
+async function getAllEntradasProdutosItens() {
+    const allEntradasProdutoItens = await Entradas_produtos_itens.findAll();
+    return allEntradasProdutoItens;
+}
+
+async function getAllEntradasProdutosItensByIdEntrada(idEntrada) {
+    const entradasProdutosItens = await EntradasProdutos.findByPk(idEntrada);
+    return entradasProdutosItens;
+}
+
+async function getEntradaProdutoItemById(idItem) {
+    const entradasProdutosItensID = await Entradas_produtos_itens.findByPk(idItem);
+    return entradasProdutosItensID;
+}
+
 
 module.exports = {
     getAllEntradasProdutos,
@@ -224,4 +264,8 @@ module.exports = {
     getAllCanceledEntradasProdutosByFilterAndOrderBy,
     getEntradaProdutoById,
     changeEntradaProdutoStatus,
+    createEntradaProduto,
+    getAllEntradasProdutosItens,
+    getAllEntradasProdutosItensByIdEntrada,
+    getEntradaProdutoItemById,
 }
