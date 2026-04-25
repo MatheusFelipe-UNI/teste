@@ -219,7 +219,7 @@ async function getAllEntradasProdutosItens(req, res) {
 
 async function getAllEntradasProdutosItensByIdEntrada(req, res) {
    try {
-      const idEntrada = Number(req.params.id);
+      const idEntrada = Number(req.params.idEntrada);
 
       if (!idEntrada) {
          throw new FieldUndefinedError("Campo idEntrada não identificado", {

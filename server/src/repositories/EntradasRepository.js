@@ -79,7 +79,7 @@ async function getAllReceivedEntradasProdutosByFilterAndOrderBy(filters, orderBy
         const value = filters[selectFilter];
         if (value === undefined || value === null || value === "") continue;
 
-        // Filtro que toma como base a data de hoje - o número de dias informado pelo usuário e devolve todas as aquisições RECEBIDAS dentro este periodo.
+        // Filtro que toma como base a data de hoje subtrai pelo número de dias informado pelo usuário e devolve todas as aquisições RECEBIDAS dentro este periodo.
         if (selectFilter === 'periodo') {
             const hoje = new Date();
             const dataInicio = new Date();
@@ -189,14 +189,6 @@ async function getEntradaProdutoById(idEntradaProduto) {
                 association: "user_entrada",
                 attributes: []
             },
-            {
-                association: "itens_entrada",
-                attributes: ["id", "quantidade_adquirida"],
-                include: [{
-                    association: "produtos_entrada",
-                    attributes: ["nome_produto"]
-                }]
-            },
         ]
     });
     return EntradaProdutoID;
@@ -241,13 +233,45 @@ async function createEntradaProduto(entradaData) {
 */
 
 async function getAllEntradasProdutosItens() {
-    const allEntradasProdutoItens = await Entradas_produtos_itens.findAll();
+    const allEntradasProdutoItens = await Entradas_produtos_itens.findAll({
+        attributes: [
+            "id",
+            "fk_id_entrada",
+            [sequelize.col("fornecedor_produtos_entrada.nome_fornecedor"), "nome_fornecedor"],
+            [sequelize.col("produtos_entrada.nome_produto"), "nome_produto"],
+            "quantidade_adquirida",
+            [sequelize.fn("DATE_FORMAT", sequelize.col("Entradas_produtos_itens.created_at"), "%d-%m-%Y %H:%i:%s"),"created_at",],
+        ],
+        include: [
+         {
+                association: "produtos_entrada",
+                attributes: [],
+            },
+            {
+                association: "fornecedor_produtos_entrada",
+                attributes: [],
+            }
+        ]
+    });
     return allEntradasProdutoItens;
 }
 
 async function getAllEntradasProdutosItensByIdEntrada(idEntrada) {
-    const entradasProdutosItens = await EntradasProdutos.findByPk(idEntrada);
-    return entradasProdutosItens;
+   const EntradaProdutoID = await EntradasProdutos.findByPk(idEntradaProduto, {
+        attributes: [
+            "id",
+            "status",
+            [sequelize.fn("DATE_FORMAT", sequelize.col("data_entrada"), "%d-%m-%Y %H:%i:%s"), "data_entrada"],
+            [sequelize.col("user_entrada.usuario"), "usuario"]
+        ],
+        include: [
+            {
+                association: "user_entrada",
+                attributes: []
+            },
+        ]
+    });
+    return EntradaProdutoID;
 }
 
 async function getEntradaProdutoItemById(idItem) {
