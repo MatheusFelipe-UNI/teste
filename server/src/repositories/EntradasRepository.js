@@ -67,7 +67,7 @@ async function getAllCanceledEntradasProdutos() {
 async function getAllReceivedEntradasProdutosByFilterAndOrderBy(filters, orderBy) {
     const receivedProdutos = { status: "RECEBIDA" };
 
-     const include = [
+    const include = [
         {
             association: "user_entrada",
             attributes: [],
@@ -87,7 +87,7 @@ async function getAllReceivedEntradasProdutosByFilterAndOrderBy(filters, orderBy
             receivedProdutos.data_entrada = { [Op.gte]: dataInicio };
         }
 
-       // Procura a aquisição RECEBIDA com base no nome do usuário que realizou o cadastro. 
+        // Procura a aquisição RECEBIDA com base no nome do usuário que realizou o cadastro. 
         else if (selectFilter === 'usuario') {
             include[0].where = {
                 usuario: { [Op.like]: `%${value}%` }
@@ -123,7 +123,7 @@ async function getAllReceivedEntradasProdutosByFilterAndOrderBy(filters, orderBy
 async function getAllCanceledEntradasProdutosByFilterAndOrderBy(filters, orderBy) {
     const canceledProdutos = { status: "CANCELADA" };
 
-     const include = [
+    const include = [
         {
             association: "user_entrada",
             attributes: [],
@@ -143,7 +143,7 @@ async function getAllCanceledEntradasProdutosByFilterAndOrderBy(filters, orderBy
             canceledProdutos.data_entrada = { [Op.gte]: dataInicio };
         }
 
-       // Procura a aquisição CANCELADA com base no nome do usuário que realizou o cancelamento. 
+        // Procura a aquisição CANCELADA com base no nome do usuário que realizou o cancelamento. 
         else if (selectFilter === 'usuario') {
             include[0].where = {
                 usuario: { [Op.like]: `%${value}%` }
@@ -240,10 +240,10 @@ async function getAllEntradasProdutosItens() {
             [sequelize.col("fornecedor_produtos_entrada.nome_fornecedor"), "nome_fornecedor"],
             [sequelize.col("produtos_entrada.nome_produto"), "nome_produto"],
             "quantidade_adquirida",
-            [sequelize.fn("DATE_FORMAT", sequelize.col("Entradas_produtos_itens.created_at"), "%d-%m-%Y %H:%i:%s"),"created_at",],
+            [sequelize.fn("DATE_FORMAT", sequelize.col("Entradas_produtos_itens.created_at"), "%d-%m-%Y %H:%i:%s"), "created_at",],
         ],
         include: [
-         {
+            {
                 association: "produtos_entrada",
                 attributes: [],
             },
@@ -257,7 +257,7 @@ async function getAllEntradasProdutosItens() {
 }
 
 async function getAllEntradasProdutosItensByIdEntrada(idEntrada) {
-   const EntradaProdutoID = await EntradasProdutos.findByPk(idEntradaProduto, {
+    const EntradaProdutoID = await EntradasProdutos.findByPk(idEntrada, {
         attributes: [
             "id",
             "status",
@@ -269,13 +269,40 @@ async function getAllEntradasProdutosItensByIdEntrada(idEntrada) {
                 association: "user_entrada",
                 attributes: []
             },
+            {
+                association: "itens_entrada",
+                attributes: ["id", "quantidade_adquirida"],
+                include: [{
+                    association: "produtos_entrada",
+                    attributes: ["nome_produto"]
+                }]
+            },
         ]
     });
     return EntradaProdutoID;
 }
 
 async function getEntradaProdutoItemById(idItem) {
-    const entradasProdutosItensID = await Entradas_produtos_itens.findByPk(idItem);
+    const entradasProdutosItensID = await Entradas_produtos_itens.findByPk(idItem,{
+        attributes: [
+            "id",
+            "fk_id_entrada",
+            [sequelize.col("fornecedor_produtos_entrada.nome_fornecedor"), "nome_fornecedor"],
+            [sequelize.col("produtos_entrada.nome_produto"), "nome_produto"],
+            "quantidade_adquirida",
+            [sequelize.fn("DATE_FORMAT", sequelize.col("Entradas_produtos_itens.created_at"), "%d-%m-%Y %H:%i:%s"), "created_at",],
+        ],
+        include: [
+            {
+                association: "produtos_entrada",
+                attributes: [],
+            },
+            {
+                association: "fornecedor_produtos_entrada",
+                attributes: [],
+            }
+        ]
+    });
     return entradasProdutosItensID;
 }
 

@@ -21,6 +21,10 @@ router
    .get(entradasController.getAllReceivedEntradasProdutosByFilterAndOrderBy)
 
 router
+   .route("/:idEntrada/itens")
+   .get(entradasController.getAllEntradasProdutosItensByIdEntrada)
+
+router
    .route("/canceladas/filter")
    .get(entradasController.getAllCanceledEntradasProdutosByFilterAndOrderBy)
 
