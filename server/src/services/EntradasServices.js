@@ -1,11 +1,22 @@
 const { 
     getAllEntradasProdutos,
     getAllReceivedEntradasProdutos,
+    getAllCanceledEntradasProdutos,
+    getAllReceivedEntradasProdutosByFilterAndOrderBy,
+    getAllCanceledEntradasProdutosByFilterAndOrderBy,
+    getEntradaProdutoById,
+    changeEntradaProdutoStatus,
+    createEntradaProduto,
+    getAllEntradasProdutosItens,
+    getAllEntradasProdutosItensByIdEntrada,
+    getEntradaProdutoItemById,
 } = require ("../repositories/EntradasRepository");
 const { Op } = require("sequelize");
 const { EntradasProdutos, sequelize} = require("../models");
 const NotFoundError = require("../classes/NotFoundError");
 const ExistsDataError = require("../classes/ExistsDataError");
+
+
 
 async function getAllEntradasProdutosService() {
     const allEntradasProdutos = await getAllEntradasProdutos();
@@ -17,70 +28,106 @@ async function getAllReceivedEntradasProdutosService() {
     return allReceivedEntradasProdutos;
 }
 
-async function getAllInactiveEntradasProdutosService() {
-    const allInactiveEntradasProdutos = await getAllInactiveEntradasProdutos();
-    return allInactiveEntradasProdutos;
+async function getAllCanceledEntradasProdutosService() {
+    const allCanceledEntradasProdutos = await getAllCanceledEntradasProdutos();
+    return allCanceledEntradasProdutos;
 }
 
-async function getAllActiveEntradasProdutosByFilterAndOrderByService(filterParams) {
-    const {
-        nome_cesta,
-        preco_min,
-        preco_max,
-        order_by = "created_at",
-        order_direction = "DESC"
-    } = filterParams;
-
-    const whereClause = {
-        status: "ATIVO"
-    };
-
-    // Filtro com base no nome da cesta
-    if (nome_cesta) {
-        whereClause.nome_cesta = {
-            [Op.like]: `%${nome_cesta}%`
-        };
+async function getAllReceivedEntradasProdutosByFilterAndOrderByService(orderBy, filterOptions) {
+    let filters = {};
+    if (filterOptions) {
+        try {
+            filters = typeof filterOptions === 'string' ? JSON.parse(filterOptions) : filterOptions;
+        } catch (error) {
+            filters = {};
+        }
     }
-
-    // Filtro baseado nos valores da cesta, o usuário deve escolher o valor minimo e o valor máximo
-    if (preco_min || preco_max) {
-        whereClause.preco = {};
-        if (preco_min) whereClause.preco[Op.gte] = preco_min;
-        if (preco_max) whereClause.preco[Op.lte] = preco_max;
-
-    }
-
-    const allowedOrderFields = ['id', 'nome_cesta', 'preco', 'quantidade', 'created_at', 'updated_at'];
-    const orderField = allowedOrderFields.includes(order_by) ? order_by : 'id';
-    const orderDir = order_direction.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
-    const orderFilters = [[orderField, orderDir]];
-
-    const attributesFilters = [
-        "id",
-        "nome_cesta",
-        "preco",
-        "quantidade",
-        "status",
-        [
-            sequelize.fn("DATE_FORMAT", sequelize.col("EntradasProdutos.created_at"), "%d-%m-%Y %H:%i:%s"),
-            "created_at",
-        ],
-        [
-            sequelize.fn("DATE_FORMAT", sequelize.col("EntradasProdutos.updated_at"), "%d-%m-%Y %H:%i:%s"),
-            "updated_at",
-        ],
-    ];
-
-    const filteredEntradasProdutos = await getAllActiveEntradasProdutosByFilterAndOrderBy(whereClause, orderFilters, attributesFilters);
-    return filteredEntradasProdutos;
+    
+    const allowedOrderFields = ['id', 'data_entrada', 'usuario'];
+    const validOrderBy = allowedOrderFields.includes(orderBy) ? orderBy : 'data_entrada';
+    
+    return await getAllReceivedEntradasProdutosByFilterAndOrderBy(filters, validOrderBy);
 }
 
-async function getCestaByIdService(idCesta) {
-    const cestaID = await getCestaById(idCesta);
-    return cestaID
+async function getAllCanceledEntradasProdutosByFilterAndOrderByService(orderBy, filterOptions) {
+    let filters = {};
+    if (filterOptions) {
+        try {
+            filters = typeof filterOptions === 'string' ? JSON.parse(filterOptions) : filterOptions;
+        } catch (error) {
+            filters = {};
+        }
+    }
+    
+    const allowedOrderFields = ['id', 'data_entrada', 'usuario'];
+    const validOrderBy = allowedOrderFields.includes(orderBy) ? orderBy : 'data_entrada';
+    
+    return await getAllCanceledEntradasProdutosByFilterAndOrderBy(filters, validOrderBy);
+}
+
+
+async function getEntradaProdutoByIdService(idEntradaProduto) {
+    const EntradaProdutoID = await getEntradaProdutoById(idEntradaProduto);
+    return EntradaProdutoID
+}
+
+async function changeEntradaProdutoStatusService(idEntrada, newStatus){
+    const produtos = await getEntradaProdutoByIdService(idEntrada);
+    const formattedNewStatus = newStatus.toUpperCase();
+
+    if (!produtos){
+        throw new NotFoundError("Entrada não localizada!");
+    }
+
+    if (formattedNewStatus !== "RECEBIDA" && formattedNewStatus !== "CANCELADA"){
+        throw new ExistsDataError("Utilize RECEBIDA ou CANCELADA ")
+    }
+
+    const statusAtual = produtos.status;
+    if(formattedNewStatus == statusAtual) {
+        throw new ExistsDataError(`Esta entrada já se encontra com o status: ${formattedNewStatus}`);
+    }
+
+    const updateEntradaStatus = await changeEntradaProdutoStatus(idEntrada, formattedNewStatus);
+    return updateEntradaStatus
+}
+
+async function createEntradaProdutoService(entradaData) {
+    const newEntrada = await createEntradaProduto(entradaData);
+    return newEntrada;
+}
+
+/*
+========================================================
+                   Itens Entradas
+========================================================
+*/
+
+async function getAllEntradasProdutosItensService() {
+    const allEntradasProdutoItens = await getAllEntradasProdutosItens();
+    return allEntradasProdutoItens;
+}
+
+async function getAllEntradasProdutosItensByIdEntradaService(idEntrada) {
+    const entradasProdutosItens = await getAllEntradasProdutosItensByIdEntrada(idEntrada);
+    return entradasProdutosItens;
+}
+
+async function getEntradaProdutoItemByIdService(idItem) {
+    const entradasProdutosItensID = await getEntradaProdutoItemById(idItem);
+    return entradasProdutosItensID;
 }
 
 module.exports = {
     getAllEntradasProdutosService,
     getAllReceivedEntradasProdutosService,
+    getAllCanceledEntradasProdutosService,
+    getAllReceivedEntradasProdutosByFilterAndOrderByService,
+    getAllCanceledEntradasProdutosByFilterAndOrderByService,
+    getEntradaProdutoByIdService,
+    changeEntradaProdutoStatusService,
+    createEntradaProdutoService,
+    getAllEntradasProdutosItensService,
+    getAllEntradasProdutosItensByIdEntradaService,
+    getEntradaProdutoItemByIdService,
 }

@@ -59,7 +59,7 @@ async function createUserService(userInfo) {
 }
 
 async function createFirstUserService(userInfo) {
-   const { usuario, senha } = userInfo;
+   const { usuario, senha, nivel_acesso } = userInfo;
    const formattedUser = String(removeAllAcentsForString(usuario)).trim();
    const { total_users } = await findAndCountAllUsers();
 
@@ -73,6 +73,7 @@ async function createFirstUserService(userInfo) {
    const createdUser = await createNewUser({
       usuario: formattedUser,
       senha: hashedPassword,
+      nivel_acesso: nivel_acesso
    });
    
    return createdUser;   

@@ -143,9 +143,14 @@ async function createClienteService(clienteData) {
 async function updateClienteService(id, clienteData) {
     const { nome_cliente, telefone, tipo_cliente, cpf_cnpj } = clienteData
     const cliente = await getClienteByIdService(id);
+    const existingDoc = await getClienteByCPForCNPJ(clienteData.cpf_cnpj)
 
     if (!cliente) {
         throw new NotFoundError("Cliente não localizado!")
+    }
+
+    if (existingDoc) {
+        throw new ExistsDataError("Já existe um cliente com este CPF/CNPJ")
     }
 
     const updateFields = {};
