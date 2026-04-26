@@ -104,16 +104,18 @@ async function changeCestaStatus(idCesta, newStatus) {
     return updateCesta
 }
 
+/*
+==================================================================================
+                    CORRIGIR ESTA FUNÇÃO DE UPDATE, NÃO ESTÁ 100%.
+==================================================================================
+
 async function getProdutosByID(produtos) {
     return await Produtos.findAll({
         where: { id: produtos }
     });
 }
 
-/*
-==================================================================================
-                    CORRIGIR ESTA FUNÇÃO DE UPDATE, NÃO ESTÁ 100%.
-==================================================================================
+
 
 async function updateCesta(idCesta, cestaData, newItens, updateEstoque) {
     const t = await sequelize.transaction();
@@ -192,7 +194,6 @@ module.exports = {
     getAllActiveCestasByFilterAndOrderBy,
     createCesta,
     changeCestaStatus,
-    getProdutosByID,
     // Itens cesta
     getAllCestasItens,
     getAllCestasItensByCestaId,
