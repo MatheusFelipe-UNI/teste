@@ -23,7 +23,7 @@ module.exports = (sequelize, DataTypes) => {
          }
       },
       valor_unitario: {
-         type: DataTypes.DECIMAL(11,2).UNSIGNED,
+         type: DataTypes.DECIMAL(11, 2).UNSIGNED,
          allowNull: false
       },
       qtd_disponivel: {
@@ -68,6 +68,11 @@ module.exports = (sequelize, DataTypes) => {
          constraint: true,
          foreignKey: "fk_id_produto",
          as: "cestas_produto"
+      });
+      Lotes_produtos.belongsTo(models.Fornecedores, {
+         constraint: true,
+         foreignKey: "fk_id_fornecedor",
+         as: "fornecedor_produto"
       });
    }
 

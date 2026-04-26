@@ -6,6 +6,22 @@ const NotFoundError = require("../classes/NotFoundError.js");
 const FieldUndefinedError = require("../classes/FieldUndefinedError.js");
 const CannotCreateError = require("../classes/CannotCreateError.js");
 
+const {
+   getAllLotesProdutosService,
+   getAllActiveLotesProdutosService,
+   getAllInactiveLotesProdutosService,
+   getAllActiveLotesProdutosByFilterAndOrderByService,
+   getAllLotesProdutosByFornecedorService,
+   getLoteProdutoByIdService,
+   getAllLotesProdutosByProdutoService,
+   getAllActiveLotesProdutosByProdutoService,
+   getAllInactiveLotesProdutosByProdutoService,
+   getAllActiveLotesProdutosByProdutoWithFilterAndOrderByService,
+   createLoteProdutoService,
+   updateLoteProdutoService,
+   changeLoteProdutoStatusService,
+} = require ("../services/LotesProdutosServices.js");
+
 /* 
 ============================================
 NOTAS DO NATAN PARA O MATHEUS
@@ -195,7 +211,7 @@ async function getAllActiveLotesProdutosByProdutoWithFilterAndOrderBy(req, res) 
          });
       }
 
-      const lotesProdutos = await getAllLotesProdutosByProdutoService(idProduto, {filterOptions, orderBy});
+      const lotesProdutos = await getAllActiveLotesProdutosByProdutoWithFilterAndOrderByService(idProduto, {filterOptions, orderBy});
 
       return res.status(200).json(lotesProdutos);
 
